@@ -36,7 +36,8 @@ ENV SPARK_HOME /home/admin/spark-$SPARK_VERSION-bin-hadoop2.6
 ENV SPARK_CONF_DIR /home/admin/spark-$SPARK_VERSION-bin-hadoop2.6/conf
 ENV KAFKA_HOME /home/admin/kafka_2.11-$KAFKA_VERSION
 ENV LIVY_HOME /home/admin/apache-livy-$LIVY_VERSION-incubating-bin
-ENV PATH $PATH:$JAVA_HOME/bin:$HADOOP_HOME/bin:$HIVE_HOME/bin:$HBASE_HOME/bin:$MVN_HOME/bin:spark-$SPARK_VERSION-bin-hadoop2.6/bin:$KAFKA_HOME/bin
+ENV SQOOP_HOME /home/admin/sqoop-1.4.7.bin__hadoop-2.6.0
+ENV PATH $PATH:$JAVA_HOME/bin:$HADOOP_HOME/bin:$HIVE_HOME/bin:$HBASE_HOME/bin:$MVN_HOME/bin:spark-$SPARK_VERSION-bin-hadoop2.6/bin:$KAFKA_HOME/bin:$SQOOP_HOME/bin
 
 USER root
 
@@ -101,4 +102,21 @@ RUN wget https://archive.apache.org/dist/kafka/$KAFKA_VERSION/kafka_2.11-$KAFKA_
 RUN wget https://www.apache.org/dist/incubator/livy/$LIVY_VERSION-incubating/apache-livy-$LIVY_VERSION-incubating-bin.zip \
     && unzip /home/admin/apache-livy-$LIVY_VERSION-incubating-bin.zip \
     && rm -f /home/admin/apache-livy-$LIVY_VERSION-incubating-bin.zip
+
+# setup sqoop
+RUN wget https://downloads.apache.org/sqoop/1.4.7/sqoop-1.4.7.bin__hadoop-2.6.0.tar.gz \
+    && tar -zxvf /home/admin/sqoop-1.4.7.bin__hadoop-2.6.0.tar.gz \
+    && rm -f /home/admin/sqoop-1.4.7.bin__hadoop-2.6.0.tar.gz
+
+RUN mkdir -p $SQOOP_HOME/lib
+RUN cp $HIVE_HOME/lib/mysql-connector-java-5.1.24.jar $SQOOP_HOME/lib
+RUN wget https://download.microsoft.com/download/f/c/d/fcd3f599-2d60-46c1-8628-45c2eff1b207/sqljdbc_8.4.1.0_enu.zip \
+    && unzip sqljdbc_8.4.1.0_enu.zip \
+    && rm -f /home/admin/sqljdbc_8.4.1.0_enu.zip
+
+RUN cp 'sqljdbc_8.4\enu'/mssql-jdbc-8.4.1.jre8.jar $SQOOP_HOME/lib
+RUN rm -rf 'sqljdbc_8.4\enu'
+
+RUN wget https://repo1.maven.org/maven2/io/prestosql/presto-jdbc/344/presto-jdbc-344.jar
+RUN cp presto-jdbc-344.jar $SQOOP_HOME/lib
 

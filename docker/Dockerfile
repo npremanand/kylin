@@ -28,6 +28,19 @@ RUN wget https://archive.apache.org/dist/kylin/apache-kylin-$KYLIN_VERSION/apach
 
 RUN cp $HIVE_HOME/hcatalog/share/hcatalog/hive-hcatalog-core-1.2.1.jar $SPARK_HOME/jars/
 
+RUN mkdir -p $KYLIN_HOME/ext
+RUN cp $HIVE_HOME/lib/mysql-connector-java-5.1.24.jar $KYLIN_HOME/ext
+RUN wget https://download.microsoft.com/download/f/c/d/fcd3f599-2d60-46c1-8628-45c2eff1b207/sqljdbc_8.4.1.0_enu.zip \
+    && unzip sqljdbc_8.4.1.0_enu.zip \
+    && rm -f /home/admin/sqljdbc_8.4.1.0_enu.zip
+
+RUN cp 'sqljdbc_8.4\enu'/mssql-jdbc-8.4.1.jre8.jar $KYLIN_HOME/ext
+RUN rm -rf 'sqljdbc_8.4\enu'
+
+RUN wget https://repo1.maven.org/maven2/io/prestosql/presto-jdbc/344/presto-jdbc-344.jar
+RUN cp presto-jdbc-344.jar $KYLIN_HOME/ext
+
+
 RUN echo "kylin.engine.livy-conf.livy-enabled=true" >>  $KYLIN_HOME/conf/kylin.properties \
     && echo "kylin.engine.livy-conf.livy-url=http://127.0.0.1:8998" >>  $KYLIN_HOME/conf/kylin.properties \
     && echo kylin.engine.livy-conf.livy-key.file=hdfs://localhost:9000/kylin/livy/kylin-job-$KYLIN_VERSION.jar >> $KYLIN_HOME/conf/kylin.properties \
